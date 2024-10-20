@@ -62,6 +62,14 @@ class Paint3 extends JFrame {
                                 BasicStroke.JOIN_MITER, 10, new float[]{20, 10, 5, 10}, 0)))
         );
 
+        // Menu Transformaciones
+        JMenu menuTransformaciones = createMenu("Transformaciones",
+                createMenuItem("Traslación", "traslacion.png", e -> drawingPanel.setCurrentShape("Traslación")),
+                createMenuItem("Escalado", "escalado.png", e -> drawingPanel.setCurrentShape("Escalado")),
+                createMenuItem("Rotación", "rotacion.png", e -> drawingPanel.setCurrentShape("Rotación")),
+                createMenuItem("Sesgado", "sesgado.png", e -> drawingPanel.setCurrentShape("Sesgado"))
+        );
+
         // Menu Borrar
         JMenu menuBorrar = createMenu("Borrar",
                 createMenuItem("Borrar Pantalla", "borrar_pantalla.png", e -> drawingPanel.clearCanvas()),
@@ -73,6 +81,7 @@ class Paint3 extends JFrame {
         menuBar.add(menuFigurasRelleno);
         menuBar.add(menuColores);
         menuBar.add(menuLineas);
+        menuBar.add(menuTransformaciones);
         menuBar.add(menuBorrar);
 
         setJMenuBar(menuBar);
