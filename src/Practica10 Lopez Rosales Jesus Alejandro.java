@@ -344,7 +344,9 @@ class ShapeInfo {
             case "Línea":
                 return distanceFromLine(x, y) < 5;
             case "Círculo/Ovalo":
+            case "Círculo/Ovalo Relleno":
             case "Rectángulo/Cuadrado":
+            case "Rectángulo/Cuadrado Relleno":
                 Rectangle bounds = new Rectangle(
                         Math.min(startX, endX),
                         Math.min(startY, endY),
@@ -352,6 +354,13 @@ class ShapeInfo {
                         Math.abs(endY - startY)
                 );
                 return bounds.contains(x, y);
+            case "Triángulo":
+            case "Triángulo Relleno":
+                Polygon triangle = new Polygon();
+                triangle.addPoint(startX, endY);
+                triangle.addPoint(endX, endY);
+                triangle.addPoint((startX + endX) / 2, startY);
+                return triangle.contains(x, y);
             default:
                 return false;
         }
