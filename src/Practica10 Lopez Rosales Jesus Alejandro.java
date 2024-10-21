@@ -179,11 +179,11 @@ class DrawingPanel extends JPanel {
     }
 
     private void handleMousePressed(MouseEvent e) {
+        startPoint = e.getPoint();
         if (eraseMode) {
-            removeShapeAt(e.getPoint());
-        } else if (translateMode) {
-            startPoint = e.getPoint();
-            // Aquí podrías seleccionar una forma cercana al punto presionado para moverla
+            removeShapeAt(startPoint);
+        } else if (translateMode || escalaMode || rotateMode || sesgadoMode) {
+            // Aquí seleccionamos la figura más cercana al punto presionado
             for (ShapeInfo shape : shapes) {
                 if (shape.contains(startPoint.x, startPoint.y)) {
                     currentShape = shape;
@@ -191,7 +191,7 @@ class DrawingPanel extends JPanel {
                 }
             }
         } else {
-            startPoint = e.getPoint();
+            // Crear nueva figura si no estamos en modo de transformación
             boolean filled = currentShapeType.contains("Relleno");
             currentShape = new ShapeInfo(currentShapeType, startPoint.x, startPoint.y,
                     startPoint.x, startPoint.y, currentColor, currentStroke, filled);
@@ -199,27 +199,34 @@ class DrawingPanel extends JPanel {
     }
 
     private void handleMouseDragged(MouseEvent e) {
+        int dx = e.getX() - startPoint.x;
+        int dy = e.getY() - startPoint.y;
+
         if (translateMode && currentShape != null) {
-            int dx = e.getX() - startPoint.x;
-            int dy = e.getY() - startPoint.y;
             currentShape.translate(dx, dy);
-            startPoint = e.getPoint(); // Actualiza el punto de referencia
-            redrawShapes();
+        } else if (escalaMode && currentShape != null) {
+            currentShape.scale(dx, dy); // Aplicar escala
+        } else if (rotateMode && currentShape != null) {
+            currentShape.rotate(dx); // Aplicar rotación
+        } else if (sesgadoMode && currentShape != null) {
+            currentShape.sesgado(dx, dy); // Aplicar sesgado
         } else if (!eraseMode && currentShape != null) {
-            currentShape.setEndPoint(e.getPoint());
-            redrawShapes();
+            currentShape.setEndPoint(e.getPoint()); // Ajustar tamaño de la nueva figura
         }
+
+        startPoint = e.getPoint(); // Actualizar el punto de referencia
+        redrawShapes();
     }
 
     private void handleMouseReleased(MouseEvent e) {
-        if (translateMode) {
-            currentShape = null; // Finaliza la traslación
+        if (translateMode || escalaMode || rotateMode || sesgadoMode) {
+            currentShape = null; // Finalizar cualquier transformación
         } else if (!eraseMode && currentShape != null) {
             currentShape.setEndPoint(e.getPoint());
-            shapes.add(currentShape);
-            redrawShapes();
+            shapes.add(currentShape); // Añadir la nueva figura
             currentShape = null;
         }
+        redrawShapes();
     }
 
     private void removeShapeAt(Point point) {
@@ -455,6 +462,47 @@ class ShapeInfo {
         startY += dy;
         endX += dx;
         endY += dy;
+    }
+
+    public void scale(int dx, int dy) {
+        endX += dx;
+        endY += dy;
+    }
+
+    public void rotate(int dx) {
+        double angle = Math.toRadians(dx);
+        double x = (startX + endX) / 2;
+        double y = (startY + endY) / 2;
+        double x1 = startX - x;
+        double y1 = startY - y;
+        double x2 = endX - x;
+        double y2 = endY - y;
+        startX = (int) (x + x1 * Math.cos(angle) - y1 * Math.sin(angle));
+        startY = (int) (y + x1 * Math.sin(angle) + y1 * Math.cos(angle));
+        endX = (int) (x + x2 * Math.cos(angle) - y2 * Math.sin(angle));
+        endY = (int) (y + x2 * Math.sin(angle) + y2 * Math.cos(angle));
+    }
+
+    public void sesgado(int dx, int dy) {
+        // Calcular el centro de la figura
+        double centerX = (startX + endX) / 2.0;
+        double centerY = (startY + endY) / 2.0;
+
+        // Calcular el ancho y alto de la figura
+        double width = endX - startX;
+        double height = endY - startY;
+
+        // Calcular los nuevos puntos después del sesgado
+        double newStartX = startX + dx * (startY - centerY) / height;
+        double newEndX = endX + dx * (endY - centerY) / height;
+        double newStartY = startY + dy * (startX - centerX) / width;
+        double newEndY = endY + dy * (endX - centerX) / width;
+
+        // Actualizar las coordenadas de la figura
+        startX = (int) newStartX;
+        endX = (int) newEndX;
+        startY = (int) newStartY;
+        endY = (int) newEndY;
     }
 }
 
