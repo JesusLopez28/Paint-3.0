@@ -64,16 +64,16 @@ class Paint3 extends JFrame {
 
         // Menu Transformaciones
         JMenu menuTransformaciones = createMenu("Transformaciones",
-                createMenuItem("Traslación", "traslacion.png", e -> drawingPanel.setCurrentShape("Traslación")),
-                createMenuItem("Escalado", "escalado.png", e -> drawingPanel.setCurrentShape("Escalado")),
-                createMenuItem("Rotación", "rotacion.png", e -> drawingPanel.setCurrentShape("Rotación")),
-                createMenuItem("Sesgado", "sesgado.png", e -> drawingPanel.setCurrentShape("Sesgado"))
+                createMenuItem("Traslación", "traslacion.png", e -> drawingPanel.setTranslateMode(true)),
+                createMenuItem("Escalado", "escalado.png", e -> drawingPanel.setEscaleMode(true)),
+                createMenuItem("Rotación", "rotacion.png", e -> drawingPanel.setRotateMode(true)),
+                createMenuItem("Sesgado", "sesgado.png", e -> drawingPanel.setSesgadoMode(true))
         );
 
         // Menu Borrar
         JMenu menuBorrar = createMenu("Borrar",
                 createMenuItem("Borrar Pantalla", "borrar_pantalla.png", e -> drawingPanel.clearCanvas()),
-                createMenuItem("Borrar Figura", "borrar_figura.png", e -> drawingPanel.enableEraseMode())
+                createMenuItem("Borrar Figura", "borrar_figura.png", e -> drawingPanel.enableEraseMode(true))
         );
 
         // Añadir menus a la barra
@@ -119,6 +119,10 @@ class DrawingPanel extends JPanel {
     private BasicStroke currentStroke = new BasicStroke(2);
     private String currentShapeType = "Línea";
     private boolean eraseMode = false;
+    private boolean translateMode = false;
+    private boolean escalaMode = false;
+    private boolean rotateMode = false;
+    private boolean sesgadoMode = false;
     private Point startPoint;
     private final int width;
     private final int height;
@@ -136,6 +140,7 @@ class DrawingPanel extends JPanel {
         buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         bufferGraphics = buffer.createGraphics();
         bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        bufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         bufferGraphics.setColor(Color.WHITE);
         bufferGraphics.fillRect(0, 0, width, height);
         redrawShapes();
@@ -176,6 +181,15 @@ class DrawingPanel extends JPanel {
     private void handleMousePressed(MouseEvent e) {
         if (eraseMode) {
             removeShapeAt(e.getPoint());
+        } else if (translateMode) {
+            startPoint = e.getPoint();
+            // Aquí podrías seleccionar una forma cercana al punto presionado para moverla
+            for (ShapeInfo shape : shapes) {
+                if (shape.contains(startPoint.x, startPoint.y)) {
+                    currentShape = shape;
+                    break;
+                }
+            }
         } else {
             startPoint = e.getPoint();
             boolean filled = currentShapeType.contains("Relleno");
@@ -184,20 +198,27 @@ class DrawingPanel extends JPanel {
         }
     }
 
+    private void handleMouseDragged(MouseEvent e) {
+        if (translateMode && currentShape != null) {
+            int dx = e.getX() - startPoint.x;
+            int dy = e.getY() - startPoint.y;
+            currentShape.translate(dx, dy);
+            startPoint = e.getPoint(); // Actualiza el punto de referencia
+            redrawShapes();
+        } else if (!eraseMode && currentShape != null) {
+            currentShape.setEndPoint(e.getPoint());
+            redrawShapes();
+        }
+    }
 
     private void handleMouseReleased(MouseEvent e) {
-        if (!eraseMode && currentShape != null) {
+        if (translateMode) {
+            currentShape = null; // Finaliza la traslación
+        } else if (!eraseMode && currentShape != null) {
             currentShape.setEndPoint(e.getPoint());
             shapes.add(currentShape);
             redrawShapes();
             currentShape = null;
-        }
-    }
-
-    private void handleMouseDragged(MouseEvent e) {
-        if (!eraseMode && currentShape != null) {
-            currentShape.setEndPoint(e.getPoint());
-            redrawShapes();
         }
     }
 
@@ -225,6 +246,7 @@ class DrawingPanel extends JPanel {
         if (!eraseMode && currentShape != null) {
             Graphics2D g2d = (Graphics2D) g;
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             currentShape.draw(g2d);
         }
     }
@@ -244,16 +266,28 @@ class DrawingPanel extends JPanel {
     public void setCurrentShape(String shape) {
         currentShapeType = shape;
         eraseMode = false;
+        translateMode = false;
+        escalaMode = false;
+        rotateMode = false;
+        sesgadoMode = false;
     }
 
     public void setCurrentColor(Color color) {
         currentColor = color;
         eraseMode = false;
+        translateMode = false;
+        escalaMode = false;
+        rotateMode = false;
+        sesgadoMode = false;
     }
 
     public void setCurrentStroke(BasicStroke stroke) {
         currentStroke = stroke;
         eraseMode = false;
+        translateMode = false;
+        escalaMode = false;
+        rotateMode = false;
+        sesgadoMode = false;
     }
 
     public void clearCanvas() {
@@ -261,8 +295,44 @@ class DrawingPanel extends JPanel {
         redrawShapes();
     }
 
-    public void enableEraseMode() {
-        eraseMode = true;
+    public void enableEraseMode(boolean mode) {
+        this.eraseMode = mode;
+        translateMode = false;
+        escalaMode = false;
+        rotateMode = false;
+        sesgadoMode = false;
+    }
+
+    public void setTranslateMode(boolean mode) {
+        this.translateMode = mode;
+        eraseMode = false;
+        escalaMode = false;
+        rotateMode = false;
+        sesgadoMode = false;
+    }
+
+    public void setEscaleMode(boolean mode) {
+        this.escalaMode = mode;
+        eraseMode = false;
+        translateMode = false;
+        rotateMode = false;
+        sesgadoMode = false;
+    }
+
+    public void setRotateMode(boolean mode) {
+        this.rotateMode = mode;
+        eraseMode = false;
+        translateMode = false;
+        escalaMode = false;
+        sesgadoMode = false;
+    }
+
+    public void setSesgadoMode(boolean mode) {
+        this.sesgadoMode = mode;
+        eraseMode = false;
+        translateMode = false;
+        escalaMode = false;
+        rotateMode = false;
     }
 }
 
@@ -271,7 +341,7 @@ class ShapeInfo {
     private final Color color;
     private final BasicStroke stroke;
     private final boolean filled;
-    private final int startX, startY;
+    private int startX, startY;
     private int endX, endY;
 
     public ShapeInfo(String shapeType, int startX, int startY, int endX, int endY,
@@ -378,6 +448,13 @@ class ShapeInfo {
     private double distanceFromLine(int x, int y) {
         double normalLength = Math.hypot(endX - startX, endY - startY);
         return Math.abs((x - startX) * (endY - startY) - (y - startY) * (endX - startX)) / normalLength;
+    }
+
+    public void translate(int dx, int dy) {
+        startX += dx;
+        startY += dy;
+        endX += dx;
+        endY += dy;
     }
 }
 
