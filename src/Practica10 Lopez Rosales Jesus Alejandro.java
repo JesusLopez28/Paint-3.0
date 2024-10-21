@@ -7,19 +7,16 @@ import java.util.List;
 
 class Paint3 extends JFrame {
     private final DrawingPanel drawingPanel;
-    private final String rootPath = "src/icons/";
 
     public Paint3() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Paint 3.0");
 
-        // Crear el panel con dimensiones específicas
         drawingPanel = new DrawingPanel(800, 600);
         add(drawingPanel);
 
         setupMenuBar();
 
-        // Ajustar el tamaño de la ventana después de agregar componentes
         pack();
         setLocationRelativeTo(null);
         setResizable(false);
@@ -28,55 +25,48 @@ class Paint3 extends JFrame {
     private void setupMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
-        // Menu Figuras
         JMenu menuFiguras = createMenu("Figuras",
-                createMenuItem("Línea", "linea.png", e -> drawingPanel.setCurrentShape("Línea")),
-                createMenuItem("Triángulo", "triangulo.png", e -> drawingPanel.setCurrentShape("Triángulo")),
-                createMenuItem("Círculo/Ovalo", "circulo.png", e -> drawingPanel.setCurrentShape("Círculo/Ovalo")),
-                createMenuItem("Rectángulo/Cuadrado", "rectangulo.png", e -> drawingPanel.setCurrentShape("Rectángulo/Cuadrado"))
+                createMenuItem("Línea", "linea.png", _ -> drawingPanel.setCurrentShape("Línea")),
+                createMenuItem("Triángulo", "triangulo.png", _ -> drawingPanel.setCurrentShape("Triángulo")),
+                createMenuItem("Círculo/Ovalo", "circulo.png", _ -> drawingPanel.setCurrentShape("Círculo/Ovalo")),
+                createMenuItem("Rectángulo/Cuadrado", "rectangulo.png", _ -> drawingPanel.setCurrentShape("Rectángulo/Cuadrado"))
         );
 
-        // Menu Figuras con Relleno
         JMenu menuFigurasRelleno = createMenu("Figuras con Relleno",
-                createMenuItem("Triángulo Relleno", "trianguloR.png", e -> drawingPanel.setCurrentShape("Triángulo Relleno")),
-                createMenuItem("Círculo/Ovalo Relleno", "circuloR.png", e -> drawingPanel.setCurrentShape("Círculo/Ovalo Relleno")),
-                createMenuItem("Rectángulo/Cuadrado Relleno", "rectanguloR.png", e -> drawingPanel.setCurrentShape("Rectángulo/Cuadrado Relleno"))
+                createMenuItem("Triángulo Relleno", "trianguloR.png", _ -> drawingPanel.setCurrentShape("Triángulo Relleno")),
+                createMenuItem("Círculo/Ovalo Relleno", "circuloR.png", _ -> drawingPanel.setCurrentShape("Círculo/Ovalo Relleno")),
+                createMenuItem("Rectángulo/Cuadrado Relleno", "rectanguloR.png", _ -> drawingPanel.setCurrentShape("Rectángulo/Cuadrado Relleno"))
         );
 
 
-        // Menu Colores
         JMenu menuColores = createMenu("Colores",
-                createMenuItem("Rojo", "rojo.png", e -> drawingPanel.setCurrentColor(Color.RED)),
-                createMenuItem("Verde", "verde.png", e -> drawingPanel.setCurrentColor(Color.GREEN)),
-                createMenuItem("Azul", "azul.png", e -> drawingPanel.setCurrentColor(Color.BLUE))
+                createMenuItem("Rojo", "rojo.png", _ -> drawingPanel.setCurrentColor(Color.RED)),
+                createMenuItem("Verde", "verde.png", _ -> drawingPanel.setCurrentColor(Color.GREEN)),
+                createMenuItem("Azul", "azul.png", _ -> drawingPanel.setCurrentColor(Color.BLUE))
         );
 
-        // Menu Líneas
         JMenu menuLineas = createMenu("Tipos de Líneas",
-                createMenuItem("Sólida", "linea.png", e -> drawingPanel.setCurrentStroke(new BasicStroke(2))),
+                createMenuItem("Sólida", "linea.png", _ -> drawingPanel.setCurrentStroke(new BasicStroke(2))),
                 createMenuItem("Punteada", "linea_punteada.png",
-                        e -> drawingPanel.setCurrentStroke(new BasicStroke(2, BasicStroke.CAP_BUTT,
+                        _ -> drawingPanel.setCurrentStroke(new BasicStroke(2, BasicStroke.CAP_BUTT,
                                 BasicStroke.JOIN_MITER, 10, new float[]{10, 10}, 0))),
                 createMenuItem("Discontinua", "linea_discontinua.png",
-                        e -> drawingPanel.setCurrentStroke(new BasicStroke(2, BasicStroke.CAP_BUTT,
+                        _ -> drawingPanel.setCurrentStroke(new BasicStroke(2, BasicStroke.CAP_BUTT,
                                 BasicStroke.JOIN_MITER, 10, new float[]{20, 10, 5, 10}, 0)))
         );
 
-        // Menu Transformaciones
         JMenu menuTransformaciones = createMenu("Transformaciones",
-                createMenuItem("Traslación", "traslacion.png", e -> drawingPanel.setTranslateMode(true)),
-                createMenuItem("Escalado", "escalado.png", e -> drawingPanel.setEscaleMode(true)),
-                createMenuItem("Rotación", "rotacion.png", e -> drawingPanel.setRotateMode(true)),
-                createMenuItem("Sesgado", "sesgado.png", e -> drawingPanel.setSesgadoMode(true))
+                createMenuItem("Traslación", "traslacion.png", _ -> drawingPanel.setTranslateMode(true)),
+                createMenuItem("Escalado", "escalado.png", _ -> drawingPanel.setEscaleMode(true)),
+                createMenuItem("Rotación", "rotacion.png", _ -> drawingPanel.setRotateMode(true)),
+                createMenuItem("Sesgado", "sesgado.png", _ -> drawingPanel.setSesgadoMode(true))
         );
 
-        // Menu Borrar
         JMenu menuBorrar = createMenu("Borrar",
-                createMenuItem("Borrar Pantalla", "borrar_pantalla.png", e -> drawingPanel.clearCanvas()),
-                createMenuItem("Borrar Figura", "borrar_figura.png", e -> drawingPanel.enableEraseMode(true))
+                createMenuItem("Borrar Pantalla", "borrar_pantalla.png", _ -> drawingPanel.clearCanvas()),
+                createMenuItem("Borrar Figura", "borrar_figura.png", _ -> drawingPanel.enableEraseMode(true))
         );
 
-        // Añadir menus a la barra
         menuBar.add(menuFiguras);
         menuBar.add(menuFigurasRelleno);
         menuBar.add(menuColores);
@@ -97,6 +87,7 @@ class Paint3 extends JFrame {
     }
 
     private JMenuItem createMenuItem(String text, String iconPath, ActionListener listener) {
+        String rootPath = "src/icons/";
         JMenuItem item = new JMenuItem(text, new ImageIcon(rootPath + iconPath));
         item.addActionListener(listener);
         return item;
@@ -183,7 +174,6 @@ class DrawingPanel extends JPanel {
         if (eraseMode) {
             removeShapeAt(startPoint);
         } else if (translateMode || escalaMode || rotateMode || sesgadoMode) {
-            // Aquí seleccionamos la figura más cercana al punto presionado
             for (ShapeInfo shape : shapes) {
                 if (shape.contains(startPoint.x, startPoint.y)) {
                     currentShape = shape;
@@ -191,7 +181,6 @@ class DrawingPanel extends JPanel {
                 }
             }
         } else {
-            // Crear nueva figura si no estamos en modo de transformación
             boolean filled = currentShapeType.contains("Relleno");
             currentShape = new ShapeInfo(currentShapeType, startPoint.x, startPoint.y,
                     startPoint.x, startPoint.y, currentColor, currentStroke, filled);
@@ -205,25 +194,25 @@ class DrawingPanel extends JPanel {
         if (translateMode && currentShape != null) {
             currentShape.translate(dx, dy);
         } else if (escalaMode && currentShape != null) {
-            currentShape.scale(dx, dy); // Aplicar escala
+            currentShape.scale(dx, dy);
         } else if (rotateMode && currentShape != null) {
-            currentShape.rotate(dx); // Aplicar rotación
+            currentShape.rotate(dx);
         } else if (sesgadoMode && currentShape != null) {
-            currentShape.sesgado(dx, dy); // Aplicar sesgado
+            currentShape.sesgado(dx, dy);
         } else if (!eraseMode && currentShape != null) {
-            currentShape.setEndPoint(e.getPoint()); // Ajustar tamaño de la nueva figura
+            currentShape.setEndPoint(e.getPoint());
         }
 
-        startPoint = e.getPoint(); // Actualizar el punto de referencia
+        startPoint = e.getPoint();
         redrawShapes();
     }
 
     private void handleMouseReleased(MouseEvent e) {
         if (translateMode || escalaMode || rotateMode || sesgadoMode) {
-            currentShape = null; // Finalizar cualquier transformación
+            currentShape = null;
         } else if (!eraseMode && currentShape != null) {
             currentShape.setEndPoint(e.getPoint());
-            shapes.add(currentShape); // Añadir la nueva figura
+            shapes.add(currentShape);
             currentShape = null;
         }
         redrawShapes();
@@ -249,7 +238,6 @@ class DrawingPanel extends JPanel {
 
         g.drawImage(buffer, 0, 0, null);
 
-        // Draw current shape if being drawn
         if (!eraseMode && currentShape != null) {
             Graphics2D g2d = (Graphics2D) g;
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -269,7 +257,6 @@ class DrawingPanel extends JPanel {
         repaint();
     }
 
-    // Setters
     public void setCurrentShape(String shape) {
         currentShapeType = shape;
         eraseMode = false;
@@ -344,7 +331,7 @@ class DrawingPanel extends JPanel {
 }
 
 class ShapeInfo {
-    private String shapeType;
+    private final String shapeType;
     private final Color color;
     private final BasicStroke stroke;
     private final boolean filled;
@@ -397,9 +384,9 @@ class ShapeInfo {
         int width = Math.abs(endX - startX);
         int height = Math.abs(endY - startY);
         if (filled) {
-            g2d.fillOval(x, y, width, height); // Dibuja con relleno
+            g2d.fillOval(x, y, width, height);
         } else {
-            g2d.drawOval(x, y, width, height); // Solo el contorno
+            g2d.drawOval(x, y, width, height);
         }
     }
 
@@ -409,9 +396,9 @@ class ShapeInfo {
         int width = Math.abs(endX - startX);
         int height = Math.abs(endY - startY);
         if (filled) {
-            g2d.fillRect(x, y, width, height); // Dibuja con relleno
+            g2d.fillRect(x, y, width, height);
         } else {
-            g2d.drawRect(x, y, width, height); // Solo el contorno
+            g2d.drawRect(x, y, width, height);
         }
     }
 
@@ -419,9 +406,9 @@ class ShapeInfo {
         int[] xPoints = {startX, endX, (startX + endX) / 2};
         int[] yPoints = {endY, endY, startY};
         if (filled) {
-            g2d.fillPolygon(xPoints, yPoints, 3); // Dibuja con relleno
+            g2d.fillPolygon(xPoints, yPoints, 3);
         } else {
-            g2d.drawPolygon(xPoints, yPoints, 3); // Solo el contorno
+            g2d.drawPolygon(xPoints, yPoints, 3);
         }
     }
 
@@ -471,8 +458,8 @@ class ShapeInfo {
 
     public void rotate(int dx) {
         double angle = Math.toRadians(dx);
-        double x = (startX + endX) / 2;
-        double y = (startY + endY) / 2;
+        double x = (double) (startX + endX) / 2;
+        double y = (double) (startY + endY) / 2;
         double x1 = startX - x;
         double y1 = startY - y;
         double x2 = endX - x;
@@ -484,21 +471,17 @@ class ShapeInfo {
     }
 
     public void sesgado(int dx, int dy) {
-        // Calcular el centro de la figura
         double centerX = (startX + endX) / 2.0;
         double centerY = (startY + endY) / 2.0;
 
-        // Calcular el ancho y alto de la figura
         double width = endX - startX;
         double height = endY - startY;
 
-        // Calcular los nuevos puntos después del sesgado
         double newStartX = startX + dx * (startY - centerY) / height;
         double newEndX = endX + dx * (endY - centerY) / height;
         double newStartY = startY + dy * (startX - centerX) / width;
         double newEndY = endY + dy * (endX - centerX) / width;
 
-        // Actualizar las coordenadas de la figura
         startX = (int) newStartX;
         endX = (int) newEndX;
         startY = (int) newStartY;
